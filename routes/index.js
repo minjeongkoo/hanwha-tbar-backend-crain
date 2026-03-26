@@ -1,21 +1,23 @@
 const express = require('express');
 const { getExternal } = require('../services/externalApi');
-const { getPool, query } = require('../db/maria');
+const { getRealm } = require('../db/realm');
 
 const router = express.Router();
 
-// 헬스체크 (DB 연결 시 db: true 포함)
+// 헬스체크 (Realm 열림 시 db: true 포함)
 router.get('/health', async (req, res) => {
-  const payload = { ok: true, message: 'line-system-backend-crain is running' };
-  const pool = getPool();
-  if (pool) {
+  const payload = { ok: true, message: 'line-system-backend-crain is running', dbType: 'realm' };
+  const realm = getRealm();
+  if (realm) {
     try {
-      await query('SELECT 1');
+      realm.objects('AppMeta');
       payload.db = true;
     } catch (e) {
       payload.db = false;
       payload.dbError = e.message;
     }
+  } else {
+    payload.db = false;
   }
   res.json(payload);
 });
