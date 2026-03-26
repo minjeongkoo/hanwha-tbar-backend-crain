@@ -1,0 +1,19 @@
+{
+  "name": "line-system-backend-crain",
+  "version": "1.0.0",
+  "description": "Crain line backend — Node.js HTTP, MariaDB, external API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mariadb": "^3.5.2"
+  }
+}
