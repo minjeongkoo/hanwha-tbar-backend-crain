@@ -13,11 +13,11 @@
 
    ```bat
    cd 경로\hanwha-tbar-backend-crain
-   copy .env.example .env
    notepad .env
    npm install
    npm start
    ```
+   (`notepad .env` 로 새 파일을 만들거나, 편집기로 `.env` 를 직접 만든 뒤 `REALM_PATH`, `EDGE_API_BASE_URL` 등을 넣습니다.)
 
 2. 또는 **`start-server.cmd`** 를 더블클릭  
    - 최초 실행 시 `node_modules` 가 없으면 `npm install` 을 자동 실행합니다.  
@@ -35,7 +35,7 @@
 ## macOS / Linux
 
 ```bash
-cp .env.example .env
+# .env 를 이 폴더에 만들고 REALM_PATH, EDGE_API_BASE_URL 등 설정
 npm install
 npm start
 ```
