@@ -40,12 +40,40 @@ router.get('/client/plc/crain1507', (req, res) => {
     });
   }
   const crainPlcId = process.env.CRAIN_PLC_ID || 'crain1507';
+  const realmPath = process.env.REALM_PATH;
   return res.json({
     ok: true,
     role: 'crain',
     target: crainPlcId,
     source: 'local-realm',
-    realmPath: process.env.REALM_PATH || '(default ./data/crain.realm)',
+    realmPath,
+    count: payload.records.length,
+    snapshot: payload.snapshot,
+    records: payload.records,
+  });
+});
+
+/**
+ * GET /api/client/plc/crain1505
+ * 개발 환경에서 1505/1507 서버를 동시에 띄우기 위해 동일 Realm Handler를 노출
+ */
+router.get('/client/plc/crain1505', (req, res) => {
+  const payload = getLocalPlcPayload();
+  if (!payload.ok) {
+    return fail(res, 503, {
+      code: 'REALM_CLOSED',
+      message: payload.error || 'realm error',
+      userMessage: '로컬 PLC 데이터를 읽을 수 없습니다.',
+    });
+  }
+  const crainPlcId = process.env.CRAIN_PLC_ID || 'crain1505';
+  const realmPath = process.env.REALM_PATH;
+  return res.json({
+    ok: true,
+    role: 'crain',
+    target: crainPlcId,
+    source: 'local-realm',
+    realmPath,
     count: payload.records.length,
     snapshot: payload.snapshot,
     records: payload.records,

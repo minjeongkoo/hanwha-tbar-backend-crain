@@ -24,6 +24,7 @@ function upsertPlcDataRecords(records) {
     throw new Error('Realm is not open');
   }
   const list = Array.isArray(records) ? records : [];
+  const defaultPlcId = process.env.CRAIN_PLC_ID || 'crain1507';
 
   realm.write(() => {
     for (const raw of list) {
@@ -34,7 +35,7 @@ function upsertPlcDataRecords(records) {
       if (!(ts instanceof Date)) {
         ts = ts ? new Date(ts) : new Date();
       }
-      const plcId = raw.plcId != null ? String(raw.plcId) : 'crain1507';
+      const plcId = raw.plcId != null ? String(raw.plcId) : defaultPlcId;
       const plcName = raw.plcName != null ? String(raw.plcName) : 'Crain PLC';
       const nodeName = raw.nodeName != null ? String(raw.nodeName) : '';
       const value = raw.value != null ? String(raw.value) : '';
@@ -79,10 +80,16 @@ function getLocalPlcPayload() {
   }
   const objects = realm.objects('PlcDataRecord');
   const records = Array.from(objects).map(serializeRecord);
-  const snapshot = buildLatestSnapshot(records);
+  const expectedPlcId = process.env.CRAIN_PLC_ID || 'crain1507';
+
+  // 두 인스턴스를 동시에 띄우는 경우 각 인스턴스가 자기 plcId에 해당하는 데이터만 응답하도록 1차 필터링한다.
+  // 기존 realm이 특정 plcId만 가진 경우가 있을 수 있으므로, 필터 결과가 비면 전체를 fallback 한다.
+  const filtered = records.filter((r) => String(r.plcId) === expectedPlcId);
+  const outRecords = filtered.length > 0 ? filtered : records;
+  const snapshot = buildLatestSnapshot(outRecords);
   return {
     ok: true,
-    records,
+    records: outRecords,
     snapshot,
   };
 }

@@ -36,10 +36,11 @@ let realmInstance = null;
 
 function getRealmPath() {
   const raw = process.env.REALM_PATH;
-  if (raw && String(raw).trim() !== '') {
-    return path.isAbsolute(raw) ? raw : path.join(process.cwd(), raw);
+  if (!raw || String(raw).trim() === '') {
+    throw new Error('REALM_PATH is required (set it in hanwha-tbar-backend-crain/.env)');
   }
-  return path.join(__dirname, '..', 'data', 'crain.realm');
+  const trimmed = String(raw).trim();
+  return path.isAbsolute(trimmed) ? trimmed : path.join(process.cwd(), trimmed);
 }
 
 function ensureDirForFile(filePath) {
