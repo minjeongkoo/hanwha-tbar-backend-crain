@@ -10,6 +10,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const { openRealm, closeRealm } = require('./db/realm');
 const routes = require('./routes');
+const { startCrainOpcuaSync, stopCrainOpcuaSync } = require('./services/crainOpcuaSync');
 
 const DEFAULT_PORT = 3001;
 function getListenPort() {
@@ -40,11 +41,14 @@ async function start() {
     console.warn('Realm 열기 실패로 DB 없이 시작합니다:', err.message);
   }
 
+  startCrainOpcuaSync();
+
   const server = app.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
   });
 
   const shutdown = () => {
+    stopCrainOpcuaSync();
     server.close(async () => {
       await closeRealm();
       process.exit(0);

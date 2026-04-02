@@ -16,6 +16,22 @@ const AppMetaSchema = {
   },
 };
 
+/** Edge/Master PLC 에이전트와 동일 PlcDataRecord (OPC UA 스냅샷 저장) */
+const PlcDataRecordSchema = {
+  name: 'PlcDataRecord',
+  primaryKey: '_id',
+  properties: {
+    _id: 'objectId',
+    plcId: { type: 'string', indexed: true },
+    plcName: 'string',
+    nodeId: { type: 'string', indexed: true },
+    nodeName: 'string',
+    value: 'string',
+    dataType: 'string',
+    timestamp: 'date',
+  },
+};
+
 let realmInstance = null;
 
 function getRealmPath() {
@@ -39,8 +55,13 @@ async function openRealm() {
   ensureDirForFile(realmPath);
   realmInstance = await Realm.open({
     path: realmPath,
-    schema: [AppMetaSchema],
-    schemaVersion: 1,
+    schema: [AppMetaSchema, PlcDataRecordSchema],
+    schemaVersion: 2,
+    onMigration: (oldRealm, newRealm) => {
+      if (oldRealm.schemaVersion < 2) {
+        /* PlcDataRecord 테이블 신규 */
+      }
+    },
   });
   console.log('[Realm] opened:', realmPath);
   return realmInstance;
@@ -68,4 +89,5 @@ module.exports = {
   closeRealm,
   getRealm,
   getRealmPath,
+  PlcDataRecordSchema,
 };
