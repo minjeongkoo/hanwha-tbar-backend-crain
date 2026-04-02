@@ -1,11 +1,9 @@
 const { readOpcUaSnapshot, getOpcUaEndpoint, parseNodeEntries } = require('./opcuaCrainService');
 const { upsertPlcDataRecords } = require('./crainPlcRealmStore');
-const { postToEdge } = require('./edgeApi');
 
 let syncTimer = null;
 let lastSyncAt = null;
 let lastError = null;
-let lastEdgePostOk = null;
 
 function getSyncIntervalMs() {
   const raw = process.env.CRAIN_SYNC_INTERVAL_MS;
@@ -19,7 +17,7 @@ function isOpcUaConfigured() {
 }
 
 /**
- * OPC UA 읽기 → Realm 저장 → Edge POST
+ * OPC UA 읽기 → 로컬 Realm 저장 (클라이언트는 Edge GET /api/plc/crain/1507 → crain-backend 조회)
  */
 async function runOneSync() {
   if (!isOpcUaConfigured()) {
@@ -42,22 +40,6 @@ async function runOneSync() {
     return { ok: false, phase: 'realm', message: err.message };
   }
 
-  try {
-    const result = await postToEdge('/plc/crain1507', { records }, { timeout: 30000 });
-    lastEdgePostOk = result.status >= 200 && result.status < 300;
-    if (!lastEdgePostOk) {
-      lastError = new Error(`Edge responded ${result.status}`);
-      return { ok: false, phase: 'edge', status: result.status, data: result.data };
-    }
-  } catch (err) {
-    lastError = err;
-    lastEdgePostOk = false;
-    if (err.code === 'EDGE_NOT_CONFIGURED') {
-      return { ok: false, phase: 'edge', message: err.message, skipped: true };
-    }
-    return { ok: false, phase: 'edge', message: err.message };
-  }
-
   lastSyncAt = new Date().toISOString();
   lastError = null;
   return { ok: true, count: records.length, syncedAt: lastSyncAt };
@@ -75,7 +57,7 @@ function startCrainOpcuaSync() {
   }
 
   const ms = getSyncIntervalMs();
-  console.log(`[Crain OPC UA] sync every ${ms}ms → Realm → Edge`);
+  console.log(`[Crain OPC UA] sync every ${ms}ms → local Realm`);
   syncTimer = setInterval(() => {
     runOneSync().catch((err) => {
       lastError = err;
@@ -101,7 +83,6 @@ function getSyncStatus() {
     opcUaConfigured: isOpcUaConfigured(),
     intervalMs: getSyncIntervalMs(),
     lastSyncAt,
-    lastEdgePostOk,
     lastError: lastError ? lastError.message : null,
   };
 }
