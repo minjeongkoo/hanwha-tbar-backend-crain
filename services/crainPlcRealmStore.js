@@ -41,7 +41,9 @@ function upsertPlcDataRecords(records) {
       const value = raw.value != null ? String(raw.value) : '';
       const dataType = raw.dataType != null ? String(raw.dataType) : '';
 
-      const existing = realm.objects('PlcDataRecord').filtered('nodeId == $0', nodeId)[0];
+      const existing = realm
+        .objects('PlcDataRecord')
+        .filtered('plcId == $0 && nodeId == $1', plcId, nodeId)[0];
       if (existing) {
         existing.plcId = plcId;
         existing.plcName = plcName;

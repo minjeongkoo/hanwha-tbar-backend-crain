@@ -90,5 +90,6 @@ module.exports = {
   closeRealm,
   getRealm,
   getRealmPath,
+  AppMetaSchema,
   PlcDataRecordSchema,
 };
