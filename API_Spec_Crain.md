@@ -84,6 +84,7 @@ Realm 접근 실패 케이스에서는 `dbError`가 추가될 수 있습니다.
 {
   "ok": true,
   "role": "crain",
+  "crainId": "1507",
   "target": "crain1507",
   "source": "local-realm",
   "realmPath": "./data/crain.realm",
@@ -144,7 +145,7 @@ Realm 미오픈/접근 실패 시:
 
 #### Response 200
 
-응답 스키마는 `GET /api/client/plc/crain1507`와 동일하며, `target` 기본값만 `crain1505`로 동작합니다.
+응답 스키마는 `GET /api/client/plc/crain1507`와 동일하며, `crainId`/`target` 기본값만 `1505`/`crain1505`로 동작합니다.
 
 #### Error 503 (`REALM_CLOSED`)
 
@@ -240,6 +241,8 @@ OPC UA에서 읽은 값을 Realm에 반영하는 1회 동기화 트리거
   "opcUaConfigured": true,
   "intervalMs": 5000,
   "lastSyncAt": "2026-04-16T01:23:45.678Z",
+  "isSyncRunning": false,
+  "lastDurationMs": 41,
   "lastError": null
 }
 ```
@@ -262,6 +265,8 @@ OPC UA에서 읽은 값을 Realm에 반영하는 1회 동기화 트리거
 
 ## 운영 메모
 
-- 서버 시작 시 `CRAIN_OPCUA_ENABLED`가 `0` 또는 `false`면 주기 동기화 미실행
-- `OPCUA_ENDPOINT`, `OPCUA_NODES`가 없으면 주기 동기화 미실행(수동 실행 시도도 skipped)
-- `target` 값 및 내부 필터 기준은 `CRAIN_PLC_ID` 환경변수 영향을 받음
+- 현재 운영 모드는 **Agent App이 Realm을 갱신**하고, Crain 서버는 **Realm 조회 API** 역할만 수행합니다.
+- Crain 서버 시작 시 `startCrainOpcuaSync()`를 자동 호출하지 않으므로, 서버 기동만으로 주기 OPC UA 동기화는 시작되지 않습니다.
+- `POST /api/sync/crain-plc`는 수동 호출 시에만 동작합니다.
+- 권장 설정: `CRAIN_OPCUA_ENABLED=false`, `CRAIN_STRICT_PLC_ID=true`
+- `target` 값 및 내부 필터 기준은 `CRAIN_PLC_ID` 환경변수 영향을 받습니다.

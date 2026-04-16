@@ -4,6 +4,8 @@ const { upsertPlcDataRecords } = require('./crainPlcRealmStore');
 let syncTimer = null;
 let lastSyncAt = null;
 let lastError = null;
+let isSyncRunning = false;
+let lastDurationMs = null;
 
 function getSyncIntervalMs() {
   const raw = process.env.CRAIN_SYNC_INTERVAL_MS;
@@ -16,33 +18,43 @@ function isOpcUaConfigured() {
   return Boolean(getOpcUaEndpoint() && parseNodeEntries().length > 0);
 }
 
-/**
- * OPC UA 읽기 → 로컬 Realm 저장 (클라이언트는 Edge GET /api/plc/crain/1507 → crain-backend 조회)
- */
+/* OPC UA 읽기 → 로컬 Realm 저장 (클라이언트는 Edge GET /api/plc/crain/1507 → crain-backend 조회) */
 async function runOneSync() {
-  if (!isOpcUaConfigured()) {
-    lastError = new Error('OPCUA_ENDPOINT or OPCUA_NODES not configured');
-    return { ok: false, skipped: true, message: lastError.message };
+  if (isSyncRunning) {
+    return { ok: false, skipped: true, reason: 'SYNC_IN_PROGRESS' };
   }
 
-  let records;
-  try {
-    records = await readOpcUaSnapshot();
-  } catch (err) {
-    lastError = err;
-    return { ok: false, phase: 'opcua', message: err.message };
-  }
+  isSyncRunning = true;
+  const startedAt = Date.now();
 
   try {
-    upsertPlcDataRecords(records);
-  } catch (err) {
-    lastError = err;
-    return { ok: false, phase: 'realm', message: err.message };
-  }
+    if (!isOpcUaConfigured()) {
+      lastError = new Error('OPCUA_ENDPOINT or OPCUA_NODES not configured');
+      return { ok: false, skipped: true, message: lastError.message };
+    }
 
-  lastSyncAt = new Date().toISOString();
-  lastError = null;
-  return { ok: true, count: records.length, syncedAt: lastSyncAt };
+    let records;
+    try {
+      records = await readOpcUaSnapshot();
+    } catch (err) {
+      lastError = err;
+      return { ok: false, phase: 'opcua', message: err.message };
+    }
+
+    try {
+      upsertPlcDataRecords(records);
+    } catch (err) {
+      lastError = err;
+      return { ok: false, phase: 'realm', message: err.message };
+    }
+
+    lastSyncAt = new Date().toISOString();
+    lastError = null;
+    return { ok: true, count: records.length, syncedAt: lastSyncAt };
+  } finally {
+    lastDurationMs = Date.now() - startedAt;
+    isSyncRunning = false;
+  }
 }
 
 function startCrainOpcuaSync() {
@@ -83,6 +95,8 @@ function getSyncStatus() {
     opcUaConfigured: isOpcUaConfigured(),
     intervalMs: getSyncIntervalMs(),
     lastSyncAt,
+    isSyncRunning,
+    lastDurationMs,
     lastError: lastError ? lastError.message : null,
   };
 }

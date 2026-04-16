@@ -6,6 +6,13 @@ const { fail } = require('../utils/apiResponse');
 
 const router = express.Router();
 
+function toCrainNumericId(target, fallback) {
+  const str = target != null ? String(target).trim() : '';
+  const m = str.match(/(\d{4})$/);
+  if (m) return m[1];
+  return fallback;
+}
+
 // 헬스체크 (Realm 열림 시 db: true 포함)
 // Edge 및 인프라 연동 확인용 — 클라이언트 공개 API 아님
 router.get('/health', async (req, res) => {
@@ -40,10 +47,12 @@ router.get('/client/plc/crain1507', (req, res) => {
     });
   }
   const crainPlcId = process.env.CRAIN_PLC_ID || 'crain1507';
+  const crainId = toCrainNumericId(crainPlcId, '1507');
   const realmPath = process.env.REALM_PATH;
   return res.json({
     ok: true,
     role: 'crain',
+    crainId,
     target: crainPlcId,
     source: 'local-realm',
     realmPath,
@@ -67,10 +76,12 @@ router.get('/client/plc/crain1505', (req, res) => {
     });
   }
   const crainPlcId = process.env.CRAIN_PLC_ID || 'crain1505';
+  const crainId = toCrainNumericId(crainPlcId, '1505');
   const realmPath = process.env.REALM_PATH;
   return res.json({
     ok: true,
     role: 'crain',
+    crainId,
     target: crainPlcId,
     source: 'local-realm',
     realmPath,
