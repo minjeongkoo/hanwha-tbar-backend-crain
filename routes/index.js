@@ -1,7 +1,6 @@
 const express = require('express');
 const { getRealm } = require('../db/realm');
 const { getLocalPlcPayload } = require('../services/crainPlcRealmStore');
-const { runOneSync, getSyncStatus } = require('../services/crainOpcuaSync');
 const { fail } = require('../utils/apiResponse');
 
 const router = express.Router();
@@ -34,7 +33,7 @@ router.get('/health', async (req, res) => {
 
 /**
  * GET /api/client/plc/crain1507
- * 로컬 Realm에 저장된 Crain PLC 스냅샷 (OPC UA 수집 결과)
+ * 로컬 Realm(Agent App이 갱신)에 저장된 Crain PLC 스냅샷 반환
  * Edge의 GET /api/plc/crain/1507 이 호출하는 upstream 엔드포인트
  */
 router.get('/client/plc/crain1507', (req, res) => {
@@ -89,28 +88,6 @@ router.get('/client/plc/crain1505', (req, res) => {
     snapshot: payload.snapshot,
     records: payload.records,
   });
-});
-
-/**
- * POST /api/sync/crain-plc
- * 수동 동기화 트리거 (OPC UA → Realm) — 운영·장애 대응용, 로컬 접근만 권장
- */
-router.post('/sync/crain-plc', async (req, res) => {
-  try {
-    const out = await runOneSync();
-    return res.json({ ok: out.ok, ...out });
-  } catch (err) {
-    return fail(res, 500, {
-      code: 'SYNC_ERROR',
-      message: err.message,
-      userMessage: '동기화 실행 중 오류가 발생했습니다.',
-    });
-  }
-});
-
-/** GET /api/sync/crain-plc/status — 마지막 동기화 상태 조회 */
-router.get('/sync/crain-plc/status', (req, res) => {
-  res.json({ ok: true, ...getSyncStatus() });
 });
 
 module.exports = router;

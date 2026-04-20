@@ -8,9 +8,9 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const express = require('express');
+const cors = require('cors');
 const { openRealm, closeRealm } = require('./db/realm');
 const routes = require('./routes');
-const { stopCrainOpcuaSync } = require('./services/crainOpcuaSync');
 
 const DEFAULT_PORT = 3001;
 function getListenPort() {
@@ -27,6 +27,14 @@ function getListenPort() {
 const app = express();
 const PORT = getListenPort();
 
+// 크로스 오리진 + Authorization 등 커스텀 헤더(프리플라이트) 대응
+app.use(
+  cors({
+    origin: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 app.use(express.json());
 app.use('/api', routes);
 
@@ -46,7 +54,6 @@ async function start() {
   });
 
   const shutdown = () => {
-    stopCrainOpcuaSync();
     server.close(async () => {
       await closeRealm();
       process.exit(0);

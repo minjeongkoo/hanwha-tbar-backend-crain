@@ -153,102 +153,6 @@ Realm 미오픈/접근 실패 시:
 
 ---
 
-## 5) OPC UA -> Realm 수동 동기화 실행
-
-### `POST /api/sync/crain-plc`
-
-OPC UA에서 읽은 값을 Realm에 반영하는 1회 동기화 트리거
-
-#### Request Body
-
-없음
-
-#### Response 200 (성공)
-
-```json
-{
-  "ok": true,
-  "count": 12,
-  "syncedAt": "2026-04-16T01:23:45.678Z"
-}
-```
-
-#### Response 200 (스킵)
-
-`OPCUA_ENDPOINT` 또는 `OPCUA_NODES` 미설정 시:
-
-```json
-{
-  "ok": false,
-  "skipped": true,
-  "message": "OPCUA_ENDPOINT or OPCUA_NODES not configured"
-}
-```
-
-#### Response 200 (단계별 실패)
-
-- OPC UA 읽기 실패:
-
-```json
-{
-  "ok": false,
-  "phase": "opcua",
-  "message": "..."
-}
-```
-
-- Realm 반영 실패:
-
-```json
-{
-  "ok": false,
-  "phase": "realm",
-  "message": "..."
-}
-```
-
-#### Error 500 (`SYNC_ERROR`)
-
-예외 throw 발생 시:
-
-```json
-{
-  "ok": false,
-  "data": null,
-  "meta": {},
-  "error": {
-    "code": "SYNC_ERROR",
-    "message": "동기화 실행 중 내부 예외 메시지",
-    "userMessage": "동기화 실행 중 오류가 발생했습니다.",
-    "details": null
-  }
-}
-```
-
----
-
-## 6) 동기화 상태 조회
-
-### `GET /api/sync/crain-plc/status`
-
-마지막 동기화 상태 반환
-
-#### Response 200
-
-```json
-{
-  "ok": true,
-  "opcUaConfigured": true,
-  "intervalMs": 5000,
-  "lastSyncAt": "2026-04-16T01:23:45.678Z",
-  "isSyncRunning": false,
-  "lastDurationMs": 41,
-  "lastError": null
-}
-```
-
----
-
 ## 데이터 모델 참고
 
 `records[]` 항목은 Realm의 `PlcDataRecord` 스키마 기반:
@@ -265,8 +169,6 @@ OPC UA에서 읽은 값을 Realm에 반영하는 1회 동기화 트리거
 
 ## 운영 메모
 
-- 현재 운영 모드는 **Agent App이 Realm을 갱신**하고, Crain 서버는 **Realm 조회 API** 역할만 수행합니다.
-- Crain 서버 시작 시 `startCrainOpcuaSync()`를 자동 호출하지 않으므로, 서버 기동만으로 주기 OPC UA 동기화는 시작되지 않습니다.
-- `POST /api/sync/crain-plc`는 수동 호출 시에만 동작합니다.
-- 권장 설정: `CRAIN_OPCUA_ENABLED=false`, `CRAIN_STRICT_PLC_ID=true`
+- 운영 모드는 **Agent App이 Realm 파일을 갱신**하고, Crain 서버는 **Realm 조회 API** 역할만 수행합니다. (OPC UA 직접 통신 기능은 Crain 서버에서 제거됨)
+- 권장 설정: `CRAIN_STRICT_PLC_ID=true`
 - `target` 값 및 내부 필터 기준은 `CRAIN_PLC_ID` 환경변수 영향을 받습니다.
