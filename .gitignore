@@ -7,5 +7,6 @@ default.realm.management/
 .env
 .env.c1505
 .env.c1507
+*.txt
 .DS_Store
 npm-debug.log*
