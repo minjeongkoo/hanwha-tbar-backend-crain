@@ -1,4 +1,4 @@
-# hanwha-tbar-backend-crain
+# hanwha-tbar-backend-crane
 
 크레인 라인용 Node.js 백엔드 (Express, Realm, Edge API 프록시).
 
@@ -12,7 +12,7 @@
 1. 이 폴더를 PC에 둔 뒤, **명령 프롬프트** 또는 **PowerShell**에서:
 
    ```bat
-   cd 경로\hanwha-tbar-backend-crain
+   cd 경로\hanwha-tbar-backend-crane
    notepad .env
    npm install
    npm start
@@ -24,8 +24,8 @@
    - Node가 PATH에 잡혀 있어야 합니다.
 
 3. **`.env` 예시 (Windows 경로)**  
-   - Realm 절대 경로: `REALM_PATH=C:\앱데이터\crain.realm`  
-   - 프로젝트 기준 상대 경로: `REALM_PATH=data\crain.realm`  
+   - Realm 절대 경로: `REALM_PATH=C:\앱데이터\crane.realm`  
+   - 프로젝트 기준 상대 경로: `REALM_PATH=data\crane.realm`  
    - Edge 주소: `EDGE_API_BASE_URL=http://127.0.0.1:3000`
 
 4. 서버 주소: `http://localhost:3001` (기본 `PORT=3001`)

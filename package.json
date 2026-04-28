@@ -1,7 +1,7 @@
 {
-  "name": "line-system-backend-crain",
+  "name": "line-system-backend-crane",
   "version": "1.0.0",
-  "description": "Crain line backend — Node.js HTTP, Realm, external API",
+  "description": "Crane line backend — Node.js HTTP, Realm, external API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

@@ -1,10 +1,10 @@
 /**
- * 로컬 data/crain.realm 초기 시드 — PLC_DataMap_lasted.md 와 동일 노드·값은
+ * 로컬 data/crane.realm 초기 시드 — PLC_DataMap_lasted.md 와 동일 노드·값은
  * 1_plc-data-agent/scripts/data/crain_opcua_sample.js 를 재사용한다.
  *
  * C-1505·C-1507·PC→PLC 를 한 파일에 넣으며, 레코드는 plcId 로 구분한다.
  *
- * 실행: (backend-crain 루트에서) npm run seed:realm
+ * 실행: (backend-crane 루트에서) npm run seed:realm
  */
 const fs = require('fs');
 const path = require('path');
@@ -32,10 +32,10 @@ try {
 }
 
 const {
-  buildCrainRowsC1505PlcToPc,
-  buildCrainRowsC1507PlcToPc,
-  buildCrainRowsPcToPlc,
-  assertCrainSampleMatchesDatamap,
+  buildCrainRowsC1505PlcToPc: buildCraneRowsC1505PlcToPc,
+  buildCrainRowsC1507PlcToPc: buildCraneRowsC1507PlcToPc,
+  buildCrainRowsPcToPlc: buildCraneRowsPcToPlc,
+  assertCrainSampleMatchesDatamap: assertCraneSampleMatchesDatamap,
 } = sampleModule;
 
 function tagRows(rows, plcId, plcName) {
@@ -65,19 +65,19 @@ function removeRealmFiles(realmPath) {
 }
 
 async function main() {
-  assertCrainSampleMatchesDatamap();
+  assertCraneSampleMatchesDatamap();
 
-  const rawPath = process.env.REALM_PATH || './data/crain.realm';
+  const rawPath = process.env.REALM_PATH || './data/crane.realm';
   const realmPath = path.isAbsolute(rawPath) ? rawPath : path.join(process.cwd(), rawPath);
   const dir = path.dirname(realmPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
   removeRealmFiles(realmPath);
 
-  const c1505Plc = tagRows(buildCrainRowsC1505PlcToPc('98.7'), 'crain1505', 'Crain C-1505');
-  const c1505Pc = tagRows(buildCrainRowsPcToPlc(), 'crain1505', 'Crain C-1505');
-  const c1507Plc = tagRows(buildCrainRowsC1507PlcToPc('125.4', '120.1'), 'crain1507', 'Crain C-1507');
-  const c1507Pc = tagRows(buildCrainRowsPcToPlc(), 'crain1507', 'Crain C-1507');
+  const c1505Plc = tagRows(buildCraneRowsC1505PlcToPc('98.7'), 'crane1505', 'Crane C-1505');
+  const c1505Pc = tagRows(buildCraneRowsPcToPlc(), 'crane1505', 'Crane C-1505');
+  const c1507Plc = tagRows(buildCraneRowsC1507PlcToPc('125.4', '120.1'), 'crane1507', 'Crane C-1507');
+  const c1507Pc = tagRows(buildCraneRowsPcToPlc(), 'crane1507', 'Crane C-1507');
 
   const all = [...c1505Plc, ...c1505Pc, ...c1507Plc, ...c1507Pc];
   const now = new Date();
@@ -110,7 +110,7 @@ async function main() {
   }
 
   console.log(`[seed-realm] OK ${realmPath} (${all.length} rows)`);
-  console.log('  crain1505:', c1505Plc.length + c1505Pc.length, ' crain1507:', c1507Plc.length + c1507Pc.length);
+  console.log('  crane1505:', c1505Plc.length + c1505Pc.length, ' crane1507:', c1507Plc.length + c1507Pc.length);
 }
 
 main().catch((err) => {

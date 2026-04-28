@@ -1,5 +1,5 @@
 /**
- * line-system-backend-crain 진입점
+ * line-system-backend-crane 진입점
  * - Express HTTP 서버
  * - Realm 로컬 DB
  * - 외부 API GET 대비 (axios)
@@ -39,7 +39,7 @@ app.use(express.json());
 app.use('/api', routes);
 
 app.get('/', (req, res) => {
-  res.json({ name: 'line-system-backend-crain', version: '1.0.0' });
+  res.json({ name: 'line-system-backend-crane', version: '1.0.0' });
 });
 
 async function start() {

@@ -1,6 +1,6 @@
 /**
  * Realm 로컬 DB
- * - 경로: REALM_PATH 환경변수 또는 기본 ./data/crain.realm
+ * - 경로: REALM_PATH 환경변수 또는 기본 ./data/crane.realm
  */
 const fs = require('fs');
 const path = require('path');
@@ -37,7 +37,7 @@ let realmInstance = null;
 function getRealmPath() {
   const raw = process.env.REALM_PATH;
   if (!raw || String(raw).trim() === '') {
-    throw new Error('REALM_PATH is required (set it in hanwha-tbar-backend-crain/.env)');
+    throw new Error('REALM_PATH is required (set it in hanwha-tbar-backend-crane/.env)');
   }
   const trimmed = String(raw).trim();
   return path.isAbsolute(trimmed) ? trimmed : path.join(process.cwd(), trimmed);
