@@ -1,6 +1,6 @@
 /**
  * 로컬 data/crane.realm 초기 시드 — PLC_DataMap_lasted.md 와 동일 노드·값은
- * 1_plc-data-agent/scripts/data/crain_opcua_sample.js 를 재사용한다.
+ * 1_plc-data-agent/scripts/data/crane_opcua_sample.js 를 재사용한다.
  *
  * C-1505·C-1507·PC→PLC 를 한 파일에 넣으며, 레코드는 plcId 로 구분한다.
  *
@@ -18,7 +18,7 @@ const SAMPLE = path.join(
   '1_plc-data-agent',
   'scripts',
   'data',
-  'crain_opcua_sample.js'
+  'crane_opcua_sample.js'
 );
 
 let sampleModule;
@@ -26,16 +26,16 @@ try {
   // eslint-disable-next-line import/no-dynamic-require, global-require
   sampleModule = require(SAMPLE);
 } catch (e) {
-  console.error('[seed-realm] crain_opcua_sample.js 를 불러올 수 없습니다:', SAMPLE);
+  console.error('[seed-realm] crane_opcua_sample.js 를 불러올 수 없습니다:', SAMPLE);
   console.error(e.message);
   process.exit(1);
 }
 
 const {
-  buildCrainRowsC1505PlcToPc: buildCraneRowsC1505PlcToPc,
-  buildCrainRowsC1507PlcToPc: buildCraneRowsC1507PlcToPc,
-  buildCrainRowsPcToPlc: buildCraneRowsPcToPlc,
-  assertCrainSampleMatchesDatamap: assertCraneSampleMatchesDatamap,
+  buildCraneRowsC1505PlcToPc,
+  buildCraneRowsC1507PlcToPc,
+  buildCraneRowsPcToPlc,
+  assertCraneSampleMatchesDatamap,
 } = sampleModule;
 
 function tagRows(rows, plcId, plcName) {
