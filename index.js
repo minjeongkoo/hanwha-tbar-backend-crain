@@ -11,6 +11,7 @@ const express = require('express');
 const cors = require('cors');
 const { openRealm, closeRealm } = require('./db/realm');
 const routes = require('./routes');
+const { createCranePushAgent } = require('./services/cranePushAgent');
 
 const DEFAULT_PORT = 3001;
 function getListenPort() {
@@ -52,6 +53,9 @@ async function start() {
   const server = app.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
   });
+
+  const pushAgent = createCranePushAgent();
+  pushAgent.start();
 
   const shutdown = () => {
     server.close(async () => {
